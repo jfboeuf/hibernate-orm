@@ -9,8 +9,6 @@ package org.hibernate.test.annotations.cid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
 
 import org.hibernate.Criteria;
@@ -36,6 +34,7 @@ import static org.junit.Assert.assertTrue;
  * @author Emmanuel Bernard
  */
 public class CompositeIdTest extends BaseCoreFunctionalTestCase {
+
 	@Test
 	public void testOneToOneInCompositePk() throws Exception {
 		Session s;
@@ -54,17 +53,15 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 		s.flush();
 		s.clear();
 
-		a = (A) s.get(A.class, a.getAId() );
+		a = (A) s.get( A.class, a.getAId() );
 		assertEquals( b.getId(), a.getAId().getB().getId() );
 
 		tx.rollback();
 		s.close();
 	}
 
-
 	/**
-	 * This feature is not supported by the EJB3
-	 * this is an hibernate extension
+	 * This feature is not supported by the EJB3 this is an hibernate extension
 	 */
 	@Test
 	public void testManyToOneInCompositePk() throws Exception {
@@ -96,9 +93,9 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 		c = (Child) results.get( 0 );
 		assertNotNull( c );
 		assertNotNull( c.id.parent );
-		//FIXME mke it work in unambigious cases
-		//		assertNotNull(c.id.parent.id);
-		//		assertEquals(p.id.getFirstName(), c.id.parent.id.getFirstName());
+		// FIXME mke it work in unambigious cases
+		// assertNotNull(c.id.parent.id);
+		// assertEquals(p.id.getFirstName(), c.id.parent.id.getFirstName());
 		s.delete( c );
 		s.delete( c.id.parent );
 		tx.commit();
@@ -106,7 +103,7 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-10476")
+	@TestForIssue(jiraKey = "HHH-10476")
 	public void testManyToOneInCompositePkInPC() throws Exception {
 		Session s;
 		Transaction tx;
@@ -129,7 +126,7 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 
 		s = openSession();
 		tx = s.beginTransaction();
-		p = (Parent) s.get( Parent.class, ppk);
+		p = (Parent) s.get( Parent.class, ppk );
 		// p.id should be ppk.
 		assertSame( ppk, p.id );
 		tx.commit();
@@ -149,8 +146,7 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 	}
 
 	/**
-	 * This feature is not supported by the EJB3
-	 * this is an hibernate extension
+	 * This feature is not supported by the EJB3 this is an hibernate extension
 	 */
 	@Test
 	public void testManyToOneInCompositePkAndSubclass() throws Exception {
@@ -183,9 +179,9 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 		c = (LittleGenius) results.get( 0 );
 		assertNotNull( c );
 		assertNotNull( c.id.parent );
-		//FIXME mke it work in unambigious cases
-//		assertNotNull(c.id.parent.id);
-//		assertEquals(p.id.getFirstName(), c.id.parent.id.getFirstName());
+		// FIXME mke it work in unambigious cases
+		// assertNotNull(c.id.parent.id);
+		// assertEquals(p.id.getFirstName(), c.id.parent.id.getFirstName());
 		s.delete( c );
 		s.delete( c.id.parent );
 		tx.commit();
@@ -421,84 +417,98 @@ public class CompositeIdTest extends BaseCoreFunctionalTestCase {
 	@Test
 	public void testQueryInAndComposite() {
 
-		Session s = openSession(  );
+		Session s = openSession();
 		Transaction transaction = s.beginTransaction();
 		createData( s );
-        s.flush();
-        List ids = new ArrayList<SomeEntityId>(2);
-        ids.add( new SomeEntityId(1,12) );
-        ids.add( new SomeEntityId(10,23) );
+		s.flush();
+		List ids = new ArrayList<SomeEntityId>( 2 );
+		ids.add( new SomeEntityId( 1, 12 ) );
+		ids.add( new SomeEntityId( 10, 23 ) );
 
-        Criteria criteria = s.createCriteria( SomeEntity.class );
-        Disjunction disjunction = Restrictions.disjunction();
+		Criteria criteria = s.createCriteria( SomeEntity.class );
+		Disjunction disjunction = Restrictions.disjunction();
 
-        disjunction.add( Restrictions.in( "id", ids  ) );
-        criteria.add( disjunction );
+		disjunction.add( Restrictions.in( "id", ids ) );
+		criteria.add( disjunction );
 
-        List list = criteria.list();
-        assertEquals( 2, list.size() );
+		List list = criteria.list();
+		assertEquals( 2, list.size() );
 		transaction.rollback();
 		s.close();
 	}
 
 	@Test
-    public void testQueryInAndCompositeWithHQL() {
-        Session s = openSession(  );
-        Transaction transaction = s.beginTransaction();
-        createData( s );
-        s.flush();
-        List ids = new ArrayList<SomeEntityId>(2);
-        ids.add( new SomeEntityId(1,12) );
-        ids.add( new SomeEntityId(10,23) );
-        ids.add( new SomeEntityId(10,22) );
-        Query query=s.createQuery( "from SomeEntity e where e.id in :idList" );
-        query.setParameterList( "idList", ids );
-        List list=query.list();
-        assertEquals( 3, list.size() );
-        transaction.rollback();
-        s.close();
-    }
+	public void testQueryInAndCompositeWithHQL() {
+		Session s = openSession();
+		Transaction transaction = s.beginTransaction();
+		createData( s );
+		s.flush();
+		List ids = new ArrayList<SomeEntityId>( 2 );
+		ids.add( new SomeEntityId( 1, 12 ) );
+		ids.add( new SomeEntityId( 10, 23 ) );
+		ids.add( new SomeEntityId( 10, 22 ) );
+		Query query = s.createQuery( "from SomeEntity e where e.id in :idList" );
+		query.setParameterList( "idList", ids );
+		List list = query.list();
+		assertEquals( 3, list.size() );
+		transaction.rollback();
+		s.close();
+	}
 
-	private void createData(Session s){
-        SomeEntity someEntity = new SomeEntity();
-        someEntity.setId( new SomeEntityId( ) );
-        someEntity.getId().setId( 1 );
-        someEntity.getId().setVersion( 11 );
-        someEntity.setProp( "aa" );
-        s.persist( someEntity );
-        
-        someEntity = new SomeEntity();
-        someEntity.setId( new SomeEntityId( ) );
-        someEntity.getId().setId( 1 );
-        someEntity.getId().setVersion( 12 );
-        someEntity.setProp( "bb" );
-        s.persist( someEntity );
-        
-        someEntity = new SomeEntity();
-        someEntity.setId( new SomeEntityId( ) );
-        someEntity.getId().setId( 10 );
-        someEntity.getId().setVersion( 21 );
-        someEntity.setProp( "cc1" );
-        s.persist( someEntity );
-        
-        someEntity = new SomeEntity();
-        someEntity.setId( new SomeEntityId( ) );
-        someEntity.getId().setId( 10 );
-        someEntity.getId().setVersion( 22 );
-        someEntity.setProp( "cc2" );
-        s.persist( someEntity );
-        
-        someEntity = new SomeEntity();
-        someEntity.setId( new SomeEntityId( ) );
-        someEntity.getId().setId( 10 );
-        someEntity.getId().setVersion( 23 );
-        someEntity.setProp( "cc3" );
-        s.persist( someEntity );
+	@Test
+	@TestForIssue(jiraKey = "HHH-8583")
+	public void testInQueryWithCompositeId() {
+		Session s = openSession();
+		Transaction tx = s.beginTransaction();
+		createData( s );
+
+		Query q = s.createQuery( "from SomeEntity se1 where se1 in (select se2 from SomeEntity se2)" );
+		assertEquals( 5, q.list().size() );
+
+		tx.rollback();
+		s.close();
+	}
+
+	private void createData(Session s) {
+		SomeEntity someEntity = new SomeEntity();
+		someEntity.setId( new SomeEntityId() );
+		someEntity.getId().setId( 1 );
+		someEntity.getId().setVersion( 11 );
+		someEntity.setProp( "aa" );
+		s.persist( someEntity );
+
+		someEntity = new SomeEntity();
+		someEntity.setId( new SomeEntityId() );
+		someEntity.getId().setId( 1 );
+		someEntity.getId().setVersion( 12 );
+		someEntity.setProp( "bb" );
+		s.persist( someEntity );
+
+		someEntity = new SomeEntity();
+		someEntity.setId( new SomeEntityId() );
+		someEntity.getId().setId( 10 );
+		someEntity.getId().setVersion( 21 );
+		someEntity.setProp( "cc1" );
+		s.persist( someEntity );
+
+		someEntity = new SomeEntity();
+		someEntity.setId( new SomeEntityId() );
+		someEntity.getId().setId( 10 );
+		someEntity.getId().setVersion( 22 );
+		someEntity.setProp( "cc2" );
+		s.persist( someEntity );
+
+		someEntity = new SomeEntity();
+		someEntity.setId( new SomeEntityId() );
+		someEntity.getId().setId( 10 );
+		someEntity.getId().setVersion( 23 );
+		someEntity.setProp( "cc3" );
+		s.persist( someEntity );
 	}
 
 	@Override
 	protected Class[] getAnnotatedClasses() {
-		return new Class[] {
+		return new Class[]{
 				Parent.class,
 				Child.class,
 				Channel.class,
