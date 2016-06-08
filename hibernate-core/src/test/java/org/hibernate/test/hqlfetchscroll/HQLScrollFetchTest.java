@@ -6,6 +6,19 @@
  */
 package org.hibernate.test.hqlfetchscroll;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import org.hibernate.Hibernate;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -16,20 +29,8 @@ import org.hibernate.testing.junit4.BaseCoreFunctionalTestCase;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
+
 	private static final String QUERY = "select p from Parent p join fetch p.children c";
 
 	@Test
@@ -69,7 +70,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testIncompleteScrollSecondResult() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -97,7 +98,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testIncompleteScrollSecondResultInTransaction() {
 		Session s = openSession();
 		Transaction tx = s.beginTransaction();
@@ -113,7 +114,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283")
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testIncompleteScroll() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -135,7 +136,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 				}
 			}
 			else if ( Child.class.isInstance( entity ) ) {
-				if ( ! p.getChildren().contains( entity ) ) {
+				if ( !p.getChildren().contains( entity ) ) {
 					if ( cOther != null ) {
 						fail( "unexpected child entity found" );
 					}
@@ -154,7 +155,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testIncompleteScrollLast() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -168,7 +169,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 		// properly initialized.
 		Parent pOther = null;
 		Set childrenOther = new HashSet();
-		for ( Object entity : ( ( SessionImplementor) s ).getPersistenceContext().getEntitiesByKey().values() ) {
+		for ( Object entity : ( (SessionImplementor) s ).getPersistenceContext().getEntitiesByKey().values() ) {
 			if ( Parent.class.isInstance( entity ) ) {
 				if ( entity != p ) {
 					if ( pOther != null ) {
@@ -178,7 +179,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 				}
 			}
 			else if ( Child.class.isInstance( entity ) ) {
-				if ( ! p.getChildren().contains( entity ) ) {
+				if ( !p.getChildren().contains( entity ) ) {
 					childrenOther.add( entity );
 				}
 			}
@@ -198,7 +199,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testScrollOrderParentAsc() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -213,7 +214,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testScrollOrderParentDesc() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -228,7 +229,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testScrollOrderParentAscChildrenAsc() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -243,7 +244,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	@TestForIssue( jiraKey = "HHH-1283" )
+	@TestForIssue(jiraKey = "HHH-1283")
 	public void testScrollOrderParentAscChildrenDesc() {
 		Session s = openSession();
 		s.beginTransaction();
@@ -275,7 +276,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 			assertResultFromAllUsers( list );
 			fail( "should have failed because data is ordered incorrectly." );
 		}
-		catch ( AssertionError ex ) {
+		catch (AssertionError ex) {
 			// expected
 		}
 		finally {
@@ -297,7 +298,7 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 			assertResultFromAllUsers( results );
 			fail( "should have failed because data is ordered incorrectly." );
 		}
-		catch ( AssertionError ex ) {
+		catch (AssertionError ex) {
 			// expected
 		}
 		finally {
@@ -305,12 +306,72 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 		}
 	}
 
+	@Test
+	@TestForIssue(jiraKey = "HHH-10815")
+	public void testScrollableResultsGetRowNumber() {
+		Session s;
+		createFiveParentsWithNoChild();
+
+		s = openSession();
+		Transaction txn = s.beginTransaction();
+		ScrollableResults fetchResult = s.createQuery( "from Parent p left join fetch p.children" ).scroll();
+		ScrollableResults standardResult = s.createQuery( "from Parent" ).scroll();
+
+		standardResult.first();
+		assertEquals( "row number must be 0 on first result", 0, standardResult.getRowNumber() );
+		fetchResult.first();
+		assertEquals( "row number must be 0 on first result", 0, fetchResult.getRowNumber() );
+
+		standardResult.next();
+		assertEquals( "row number must be 1 on next result", 1, standardResult.getRowNumber() );
+		fetchResult.next();
+		assertEquals( "row number must be 1 on next result", 1, fetchResult.getRowNumber() );
+
+		fetchResult.last();
+		standardResult.last();
+		assertEquals( "Both results should have the same row number", standardResult.getRowNumber(), fetchResult.getRowNumber() );
+
+		txn.commit();
+		s.close();
+	}
+
+	@Test
+	@TestForIssue(jiraKey = "HHH-10815")
+	public void testScrollableResultsSetRowNumber() {
+		Session s;
+		createFiveParentsWithNoChild();
+
+		s = openSession();
+		Transaction txn = s.beginTransaction();
+		ScrollableResults fetchResult = s.createQuery( "from Parent p left join fetch p.children order by p.id" ).scroll();
+		ScrollableResults standardResult = s.createQuery( "from Parent p order by p.id" ).scroll();
+
+		for ( int i = 0; i < 5; i++ ) {
+			standardResult.setRowNumber( i );
+			fetchResult.setRowNumber( i );
+			assertEquals( standardResult.get( 0 ), fetchResult.get(0));
+		}
+
+		txn.commit();
+		s.close();
+	}
+
+	private void createFiveParentsWithNoChild() {
+		Session s = openSession();
+		Transaction t = s.beginTransaction();
+		for ( int i = 0; i < 5; i++ ) {
+			Parent p = new Parent( "parent" + i );
+			s.save( p );
+		}
+		t.commit();
+		s.close();
+	}
+
 	private void assertResultFromOneUser(Parent parent) {
 		assertEquals(
-					"parent " + parent + " has incorrect collection(" + parent.getChildren() + ").",
-					3,
-					parent.getChildren().size()
-		);
+				"parent " + parent + " has incorrect collection(" + parent.getChildren() + ").",
+				3,
+				parent.getChildren().size() );
 	}
 
 	private void assertResultFromAllUsers(List list) {
@@ -322,40 +383,40 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 
 	@Override
 	protected void prepareTest() throws Exception {
-	    Session s = openSession();
-	    Transaction t = s.beginTransaction();
-	    Child child_1_1 = new Child( "achild1-1");
-	    Child child_1_2 = new Child( "ychild1-2");
-	    Child child_1_3 = new Child( "dchild1-3");
-	    Child child_2_1 = new Child( "bchild2-1");
-	    Child child_2_2 = new Child( "cchild2-2");
-	    Child child_2_3 = new Child( "zchild2-3");
-	
-	    s.save( child_1_1 );
-	    s.save( child_2_1 );
-	    s.save( child_1_2 );
-	    s.save( child_2_2 );
-	    s.save( child_1_3 );
-	    s.save( child_2_3 );
-	
-	    s.flush();
-	
-	    Parent p1 = new Parent( "parent1" );
-	    p1.addChild( child_1_1 );
-	    p1.addChild( child_1_2 );
-	    p1.addChild( child_1_3 );
-	    s.save( p1 );
-	
-	    Parent p2 = new Parent( "parent2" );
-	    p2.addChild( child_2_1 );
-	    p2.addChild( child_2_2 );
-	    p2.addChild( child_2_3 );
-	    s.save( p2 );
-	
-	    t.commit();
-	    s.close();
+		Session s = openSession();
+		Transaction t = s.beginTransaction();
+		Child child_1_1 = new Child( "achild1-1" );
+		Child child_1_2 = new Child( "ychild1-2" );
+		Child child_1_3 = new Child( "dchild1-3" );
+		Child child_2_1 = new Child( "bchild2-1" );
+		Child child_2_2 = new Child( "cchild2-2" );
+		Child child_2_3 = new Child( "zchild2-3" );
+
+		s.save( child_1_1 );
+		s.save( child_2_1 );
+		s.save( child_1_2 );
+		s.save( child_2_2 );
+		s.save( child_1_3 );
+		s.save( child_2_3 );
+
+		s.flush();
+
+		Parent p1 = new Parent( "parent1" );
+		p1.addChild( child_1_1 );
+		p1.addChild( child_1_2 );
+		p1.addChild( child_1_3 );
+		s.save( p1 );
+
+		Parent p2 = new Parent( "parent2" );
+		p2.addChild( child_2_1 );
+		p2.addChild( child_2_2 );
+		p2.addChild( child_2_3 );
+		s.save( p2 );
+
+		t.commit();
+		s.close();
 	}
-	
+
 	@Override
 	protected void cleanupTest() throws Exception {
 		Session s = openSession();
@@ -369,6 +430,6 @@ public class HQLScrollFetchTest extends BaseCoreFunctionalTestCase {
 	}
 
 	public String[] getMappings() {
-		return new String[] { "hqlfetchscroll/ParentChild.hbm.xml" };
+		return new String[]{ "hqlfetchscroll/ParentChild.hbm.xml" };
 	}
 }
